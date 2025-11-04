@@ -1,0 +1,29 @@
+version: "3.9"
+services:
+  db:
+    image: postgres:15
+    environment:
+      POSTGRES_DB: finance
+      POSTGRES_USER: fin
+      POSTGRES_PASSWORD: fin123
+    volumes:
+      - postgres_data:/var/lib/postgresql/data
+    ports: ["5432:5432"]
+
+  api:
+    build: .
+    ports: ["8000:8000"]
+    depends_on: [db]
+    environment:
+      DATABASE_URL: postgresql+psycopg2://fin:fin123@db:5432/finance
+
+  dashboard:
+    build:
+      context: .
+      dockerfile: Dockerfile.dash
+    ports: ["8501:8501"]
+    environment:
+      API_URL: http://api:8000/api/v1
+
+volumes:
+  postgres_data:
